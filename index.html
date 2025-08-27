@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>John Doe – Professional Portfolio</title>
+  <meta name="description" content="John Doe – Creative Web Developer & UI/UX Enthusiast. Portfolio with premium UX, unique effects, and dark/light themes." />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ============ THEME TOKENS ============ */
+    :root{
+      --primary: #6a7dff;               /* Light primary */
+      --bg: #f3f5f9;                    /* Light background */
+      --surface: #ffffff;                /* Light surface */
+      --text: #1c2440;                   /* Light text */
+      --text-sub: #5c6785;               /* Light subtle */
+      --shadow: 0 10px 30px rgba(0,0,0,.08);
+      --header-bg: rgba(255,255,255,.75);
+      --ring: 0 0 0 8px rgba(106,125,255,.12);
+      --radius: 18px;
+      --blob: linear-gradient(135deg,#6a7dff 0%, #00d4ff 50%, #7cffc4 100%);
+    }
+    body.dark{
+      --primary: #7aa8ff;               /* Dark primary */
+      --bg: #0c0f17;                    /* Dark background */
+      --surface: #121727;               /* Dark surface */
+      --text: #e6edff;                  /* Dark text */
+      --text-sub: #9fb0d8;              /* Dark subtle */
+      --shadow: 0 10px 40px rgba(0,0,0,.55);
+      --header-bg: rgba(12,15,23,.7);
+      --ring: 0 0 0 8px rgba(122,168,255,.12);
+      --blob: linear-gradient(135deg,#9a7bff 0%, #2dc6ff 50%, #3df5a6 100%);
+    }
+
+    /* ============ GLOBAL ============ */
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0; font-family:'Poppins', system-ui, -apple-system, Segoe UI, Roboto, 'Helvetica Neue', Arial;
+      background: var(--bg);
+      color: var(--text);
+      line-height:1.6;
+      overflow-x:hidden;
+    }
+    .container{max-width:1140px; margin:0 auto; padding:0 20px}
+    a{color:inherit}
+    .btn{display:inline-flex; align-items:center; gap:.6rem; font-weight:700; text-decoration:none; cursor:pointer;
+      background: var(--primary); color:#fff; border:none; border-radius:999px; padding:14px 22px; box-shadow: var(--shadow);
+      transform: translateZ(0); transition: transform .15s ease, box-shadow .2s ease, filter .2s ease}
+    .btn:hover{transform: translateY(-3px)}
+    .btn:active{transform: translateY(-1px)}
+    .btn.ghost{background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.08); backdrop-filter: blur(6px)}
+
+    /* ============ HEADER ============ */
+    header{
+      position:fixed; inset:0 0 auto 0; height:68px; display:flex; align-items:center; z-index:50;
+      background: var(--header-bg); backdrop-filter:saturate(180%) blur(16px); border-bottom:1px solid rgba(255,255,255,.08)
+    }
+    nav{display:flex; align-items:center; justify-content:space-between} 
+    .logo{font-weight:800; letter-spacing:.5px; font-size:1.2rem; color:var(--primary); text-decoration:none}
+    .nav-links{display:flex; gap:22px; align-items:center}
+    .nav-links a{position:relative; font-weight:600; text-decoration:none; color:var(--text)}
+    .nav-links a::after{content:""; position:absolute; left:0; bottom:-6px; width:0%; height:3px; border-radius:3px; background:var(--primary); transition:width .25s ease}
+    .nav-links a:hover::after, .nav-links a.active::after{width:100%}
+    .theme-toggle{width:40px;height:40px;border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.14);background:transparent;color:var(--text-sub);cursor:pointer}
+
+    /* ============ WOW BACKGROUNDS ============ */
+    /* Spotlight gradient that tracks the cursor */
+    .spotlight{
+      position:fixed; inset:0; pointer-events:none; z-index:0;
+      background: radial-gradient(600px 300px at var(--mx,50%) var(--my,10%), rgba(122,168,255,.15), transparent 60%),
+                  radial-gradient(800px 400px at 10% -10%, rgba(0,212,255,.15), transparent 50%);
+      transition: background .1s linear;
+    }
+    /* Soft particle canvas */
+    canvas.particles{position:fixed; inset:0; z-index:-1; pointer-events:none; filter: blur(0.4px)}
+
+    /* ============ HERO ============ */
+    #hero{position:relative; min-height:100vh; display:grid; place-items:center; text-align:center; overflow:hidden}
+    .hero-inner{position:relative; z-index:1; max-width:900px; padding:0 20px}
+    .kicker{color:var(--text-sub); font-weight:600; letter-spacing:.12em; text-transform:uppercase}
+    .title{font-size:clamp(42px,6vw,84px); line-height:1.05; margin:.4rem 0 1rem; font-weight:800}
+    .subtitle{font-size:clamp(18px,2.2vw,24px); color:var(--text-sub); margin-bottom:2rem}
+    .cta-row{display:flex; gap:12px; justify-content:center; flex-wrap:wrap}
+
+    /* Morphing gooey blob behind title */
+    .blob{position:absolute; width:64vmax; height:64vmax; z-index:0; filter:blur(40px); opacity:.55;
+      background: var(--blob);
+      top: -10vmax; left: 50%; transform: translateX(-50%);
+      border-radius: 46% 54% 59% 41% / 48% 42% 58% 52%;
+      animation: blob 18s ease-in-out infinite alternate;
+    }
+    @keyframes blob{ 
+      0%{ border-radius:46% 54% 59% 41% / 48% 42% 58% 52%; transform: translateX(-50%) rotate(0deg)}
+      50%{ border-radius:32% 68% 40% 60% / 34% 61% 39% 66%; transform: translateX(-48%) rotate(20deg)}
+      100%{ border-radius:63% 37% 65% 35% / 61% 39% 61% 39%; transform: translateX(-52%) rotate(-12deg)}
+    }
+
+    /* ============ SECTIONS ============ */
+    section{padding:6rem 0; position:relative}
+    .section-title{font-size:clamp(28px,4vw,42px); text-align:center; margin:0 0 2.8rem; position:relative}
+    .section-title em{color:var(--primary); font-style:normal}
+    .section-title::after{content:""; position:absolute; left:50%; transform:translateX(-50%); bottom:-14px; width:72px; height:4px; border-radius:2px; background:var(--primary)}
+
+    /* ============ ABOUT ============ */
+    .about{display:grid; grid-template-columns: 1.1fr 1.4fr; gap:32px; align-items:center}
+    .about-card{background:var(--surface); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px}
+    .about-photo{position:relative; width:min(320px,80%); aspect-ratio:1/1; border-radius:22px; margin:0 auto; overflow:hidden; box-shadow:var(--shadow)}
+    .about-photo img{width:100%;height:100%;object-fit:cover; filter:grayscale(30%); transition:filter .35s ease, transform .35s ease}
+    .about-photo::after{content:""; position:absolute; inset:0; background:radial-gradient(circle at 30% 30%, transparent, rgba(0,0,0,.35)); mix-blend-mode:multiply}
+    .about-photo:hover img{filter:grayscale(0%); transform:scale(1.04)}
+
+    /* ============ PROJECTS ============ */
+    .grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:20px}
+    .card{position:relative; background:var(--surface); border-radius:20px; padding:0; overflow:hidden; box-shadow: var(--shadow); transform-style: preserve-3d; perspective:1000px; border:1px solid rgba(255,255,255,.06)}
+    .card .img{height:200px; background: #223; background-size:cover; background-position:center; filter:grayscale(40%); transition: filter .3s ease}
+    .card:hover .img{filter:grayscale(0%)}
+    .card .content{padding:18px 18px 22px}
+    .card h3{margin:0 0 6px; color:var(--primary)}
+    .tag{display:inline-block; margin-right:8px; margin-bottom:8px; padding:4px 10px; border-radius:999px; background:rgba(122,168,255,.14); color:var(--text); font-size:12px}
+    .card .shine{position:absolute; inset:0; background: radial-gradient(600px 200px at var(--sx,0%) var(--sy,0%), rgba(255,255,255,.35), transparent 50%); mix-blend-mode: overlay; opacity:.0; transition:opacity .2s}
+    .card:hover .shine{opacity:1}
+
+    /* ============ SERVICES ============ */
+    .service{background:var(--surface); border-radius:20px; padding:28px; text-align:center; box-shadow:var(--shadow); transition:transform .2s}
+    .service:hover{transform:translateY(-6px)}
+    .service .icon{font-size:40px; margin-bottom:10px}
+
+    /* ============ TESTIMONIALS ============ */
+    .carousel{position:relative; background:var(--surface); border-radius:20px; padding:36px; box-shadow:var(--shadow); overflow:hidden}
+    .slide{display:none; text-align:center}
+    .slide.active{display:block; animation:fade .5s}
+    .author{display:block; margin-top:12px; color:var(--primary); font-weight:700}
+    .progress{position:absolute; left:0; bottom:0; height:4px; width:0; background:var(--primary)}
+    @keyframes fade{from{opacity:0} to{opacity:1}}
+
+    /* ============ CONTACT ============ */
+    .contact{background:linear-gradient(180deg, rgba(122,168,255,.12), transparent 40%), var(--surface); border-radius:20px; padding:36px; text-align:center; box-shadow:var(--shadow)}
+
+    /* ============ UTIL ============ */
+    .fade{opacity:0; transform: translateY(24px); transition: opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1)}
+    .fade.show{opacity:1; transform: translateY(0)}
+    .spacer{height:14vh}
+    .hidden-visually{position:absolute!important; height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px); white-space:nowrap}
+
+    /* Mobile */
+    @media (max-width:900px){
+      .about{grid-template-columns:1fr}
+      header{height:64px}
+      .nav-links{position:fixed; inset:64px 0 auto 0; background:var(--bg); flex-direction:column; gap:18px; padding:24px; transform: translateY(-110%); transition: transform .35s ease; border-bottom:1px solid rgba(255,255,255,.08)}
+      .nav-links.open{transform: translateY(0)}
+      .menu{display:block!important}
+    }
+  </style>
+</head>
+<body class="dark">
+
+  <!-- Interactive Layers -->
+  <canvas class="particles" id="particles" aria-hidden="true"></canvas>
+  <div class="spotlight" id="spotlight" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header id="header">
+    <div class="container">
+      <nav>
+        <a href="#hero" class="logo" aria-label="Home">JD</a>
+        <button id="menuBtn" class="menu theme-toggle" aria-expanded="false" aria-controls="navLinks" style="display:none">☰</button>
+        <div id="navLinks" class="nav-links">
+          <a href="#hero" class="active">Home</a>
+          <a href="#about">About</a>
+          <a href="#projects">Projects</a>
+          <a href="#services">Services</a>
+          <a href="#testimonials">Testimonials</a>
+          <a href="#contact">Contact</a>
+          <button id="theme" class="theme-toggle" aria-label="Toggle theme">🌙</button>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section id="hero" aria-labelledby="herotitle">
+    <div class="blob"></div>
+    <div class="container hero-inner fade show">
+      <div class="kicker">Creative Web Developer</div>
+      <h1 id="herotitle" class="title">John Doe</h1>
+      <p class="subtitle">I craft delightful interfaces and robust front‑ends with an obsession for micro‑interactions and performance.</p>
+      <div class="cta-row">
+        <a class="btn magnetic" href="#contact">Work with me</a>
+        <a class="btn ghost magnetic" href="#projects" aria-label="View projects">See projects →</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="spacer"></div>
+
+  <!-- ABOUT -->
+  <section id="about" class="container" aria-labelledby="abouttitle">
+    <h2 class="section-title" id="abouttitle">About <em>Me</em></h2>
+    <div class="about fade">
+      <div class="about-card">
+        <p>Hi, I'm John—part engineer, part designer. I specialize in building <strong>accessible</strong>, <strong>fast</strong>, and <strong>beautiful</strong> web experiences. I care about pixels, but I obsess over <em>details</em>: easing curves, focus states, and the tiny moments that make users say “wow”.</p>
+        <p>Stack highlights: React/Next, TypeScript, Tailwind, Framer Motion, and Web APIs. I love prototyping interactions and shipping production‑ready UI.</p>
+        <div style="margin-top:14px; display:flex; gap:10px; flex-wrap:wrap">
+          <span class="tag">A11y‑first</span>
+          <span class="tag">Performance</span>
+          <span class="tag">Design Systems</span>
+          <span class="tag">Animations</span>
+        </div>
+      </div>
+      <div class="about-photo about-card">
+        <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=800&auto=format&fit=crop" alt="Portrait placeholder" loading="lazy" />
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" class="container" aria-labelledby="projectstitle">
+    <h2 class="section-title" id="projectstitle">Featured <em>Projects</em></h2>
+    <div class="grid">
+      <article class="card tilt fade">
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1523275335684-37898b6baf30?q=80&w=1400&auto=format&fit=crop')"></div>
+        <div class="shine" aria-hidden="true"></div>
+        <div class="content">
+          <h3>Commerce Nova</h3>
+          <p>A high‑performance e‑commerce front‑end with edge caching and instant search.</p>
+          <div>
+            <span class="tag">Next.js</span><span class="tag">Algolia</span><span class="tag">Edge</span>
+          </div>
+        </div>
+      </article>
+      <article class="card tilt fade">
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1492724441997-5dc865305da7?q=80&w=1400&auto=format&fit=crop')"></div>
+        <div class="shine" aria-hidden="true"></div>
+        <div class="content">
+          <h3>Pulse Analytics</h3>
+          <p>Privacy‑friendly product analytics with buttery‑smooth charts and no cookies.</p>
+          <div>
+            <span class="tag">Vite</span><span class="tag">Web Workers</span><span class="tag">Charts</span>
+          </div>
+        </div>
+      </article>
+      <article class="card tilt fade">
+        <div class="img" style="background-image:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?q=80&w=1400&auto=format&fit=crop')"></div>
+        <div class="shine" aria-hidden="true"></div>
+        <div class="content">
+          <h3>Motion Kit</h3>
+          <p>A micro‑interaction library: magnetic buttons, parallax cards, and cursor trails.</p>
+          <div>
+            <span class="tag">TypeScript</span><span class="tag">Animations</span><span class="tag">A11y</span>
+          </div>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services" class="container" aria-labelledby="servicestitle">
+    <h2 class="section-title" id="servicestitle">What I <em>Do</em></h2>
+    <div class="grid">
+      <div class="service fade">
+        <div class="icon">💻</div>
+        <h3>Web Development</h3>
+        <p>From Figma to fast prod: modern stacks, SSR/SSG, and clean component APIs.</p>
+      </div>
+      <div class="service fade">
+        <div class="icon">🎨</div>
+        <h3>UI/UX Design</h3>
+        <p>Design systems, accessibility, and polished micro‑interactions that convert.</p>
+      </div>
+      <div class="service fade">
+        <div class="icon">⚡</div>
+        <h3>Performance</h3>
+        <p>Core Web Vitals, lazy strategies, and profiling—speed as a feature.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials" class="container" aria-labelledby="testimonialstitle">
+    <h2 class="section-title" id="testimonialstitle">Kind <em>Words</em></h2>
+    <div class="carousel fade" role="region" aria-roledescription="carousel" aria-label="Testimonials">
+      <div class="slide active" aria-hidden="false">
+        <p>“Working with John was a game‑changer. His craft in micro‑interactions made our product feel premium.”</p>
+        <span class="author">— Jane Smith, TechCorp</span>
+      </div>
+      <div class="slide" aria-hidden="true">
+        <p>“Top‑tier front‑end. Pixel‑perfect, accessible, and fast. The results exceeded expectations.”</p>
+        <span class="author">— Mark Johnson, InnovateCo</span>
+      </div>
+      <div class="slide" aria-hidden="true">
+        <p>“From audit to delivery, John lifted CWV into the green and our conversions with it.”</p>
+        <span class="author">— Emily White, Solutions Inc.</span>
+      </div>
+      <div class="progress" id="carouselProgress"></div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="container" aria-labelledby="contacttitle">
+    <h2 class="section-title" id="contacttitle">Let's <em>Create</em> Together</h2>
+    <div class="contact fade">
+      <p>Have a project in mind? I’m available for freelance and collaborations.</p>
+      <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap">
+        <a class="btn magnetic" href="mailto:hello@johndoe.com">Get in touch</a>
+        <button class="btn ghost magnetic" id="copyEmail" aria-live="polite">Copy email</button>
+      </div>
+    </div>
+  </section>
+
+  <footer class="container" style="padding:40px 20px; color:var(--text-sub)">
+    <small>© 2025 John Doe. Built with love and great UX.</small>
+  </footer>
+
+  <script>
+    // ====== Utilities ======
+    const $ = s => document.querySelector(s);
+    const $$ = s => document.querySelectorAll(s);
+
+    // ====== Theme Toggle ======
+    const body = document.body;
+    const themeBtn = $('#theme');
+    function setTheme(t){
+      body.classList.toggle('dark', t === 'dark');
+      localStorage.setItem('theme', t);
+      themeBtn.textContent = t === 'dark' ? '☀️' : '🌙';
+    }
+    const existing = localStorage.getItem('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    setTheme(existing);
+    themeBtn.addEventListener('click', ()=> setTheme(body.classList.contains('dark') ? 'light' : 'dark'));
+
+    // ====== Mobile Nav ======
+    const menuBtn = $('#menuBtn');
+    const navLinks = $('#navLinks');
+    menuBtn?.addEventListener('click', ()=>{
+      const open = navLinks.classList.toggle('open');
+      menuBtn.setAttribute('aria-expanded', String(open));
+    });
+
+    // ====== Scroll spy & fade-in ======
+    const sections = $$('section');
+    const navAs = $$('#navLinks a');
+    const io = new IntersectionObserver((entries)=>{
+      entries.forEach(e=>{
+        if(e.isIntersecting){
+          e.target.classList.add('show');
+          const id = e.target.getAttribute('id');
+          navAs.forEach(a=>{
+            a.classList.toggle('active', a.getAttribute('href') === '#' + id);
+          })
+        }
+      })
+    }, { threshold: 0.15 });
+    $$('.fade').forEach(el=> io.observe(el));
+
+    // ====== Spotlight follows cursor ======
+    const spotlight = $('#spotlight');
+    window.addEventListener('pointermove', (e)=>{
+      const x = (e.clientX / innerWidth) * 100;
+      const y = (e.clientY / innerHeight) * 100;
+      spotlight.style.setProperty('--mx', x + '%');
+      spotlight.style.setProperty('--my', y + '%');
+    });
+
+    // ====== Particles background (tiny & efficient) ======
+    const c = $('#particles');
+    const ctx = c.getContext('2d');
+    let pr = Math.round(devicePixelRatio || 1);
+    let W, H; const P = []; const N = 60; // particles count
+    function resize(){ W = c.width = innerWidth * pr; H = c.height = innerHeight * pr; }
+    function rand(a,b){ return a + Math.random()*(b-a) }
+    function make(){ P.length = 0; for(let i=0;i<N;i++){ P.push({x:rand(0,W), y:rand(0,H), vx:rand(-.15,.15), vy:rand(-.15,.15), r:rand(1.2*pr,2.2*pr)}) } }
+    function step(){ ctx.clearRect(0,0,W,H); ctx.globalAlpha = .7; ctx.fillStyle = body.classList.contains('dark') ? '#7aa8ff' : '#6a7dff';
+      for(const p of P){ p.x+=p.vx; p.y+=p.vy; if(p.x<0||p.x>W) p.vx*=-1; if(p.y<0||p.y>H) p.vy*=-1; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill(); }
+      requestAnimationFrame(step);
+    }
+    addEventListener('resize', ()=>{ resize(); make(); }); resize(); make(); step();
+
+    // ====== Magnetic buttons ======
+    function magneticize(el){
+      const strength = 18;
+      el.addEventListener('mousemove', (e)=>{
+        const r = el.getBoundingClientRect();
+        const x = e.clientX - (r.left + r.width/2);
+        const y = e.clientY - (r.top + r.height/2);
+        el.style.transform = `translate(${x/strength}px, ${y/strength}px)`;
+      });
+      el.addEventListener('mouseleave', ()=>{ el.style.transform = 'translate(0,0)'; });
+    }
+    $$('.magnetic').forEach(magneticize);
+
+    // ====== Parallax tilt cards + shine ======
+    $$('.tilt').forEach(card=>{
+      const shine = card.querySelector('.shine');
+      card.addEventListener('mousemove', (e)=>{
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width;
+        const py = (e.clientY - r.top) / r.height;
+        const rx = (py - .5) * 10; // tilt X
+        const ry = (px - .5) * -12; // tilt Y
+        card.style.transform = `rotateX(${rx}deg) rotateY(${ry}deg)`;
+        shine.style.setProperty('--sx', (px*100)+'%');
+        shine.style.setProperty('--sy', (py*100)+'%');
+      });
+      card.addEventListener('mouseleave', ()=>{
+        card.style.transform = 'rotateX(0) rotateY(0)';
+      });
+    });
+
+    // ====== Testimonials carousel with progress bar ======
+    const slides = $$('.slide');
+    const progress = $('#carouselProgress');
+    let idx = 0; const dur = 6000;
+    function show(i){ slides.forEach((s,j)=>{ s.classList.toggle('active', j===i); s.setAttribute('aria-hidden', String(j!==i)); }); }
+    function loop(){ idx = (idx+1)%slides.length; show(idx); progress.animate([{width:'0%'},{width:'100%'}],{duration:dur,fill:'forwards',easing:'linear'}); setTimeout(loop,dur); }
+    show(0); setTimeout(loop, dur);
+
+    $('#copyEmail').addEventListener('click', async ()=>{
+      try{ await navigator.clipboard.writeText('hello@johndoe.com'); const b = $('#copyEmail'); const t=b.textContent; b.textContent='Copied!'; setTimeout(()=>b.textContent=t, 1200);}catch(e){}
+    });
+  </script>
+</body>
+</html>
